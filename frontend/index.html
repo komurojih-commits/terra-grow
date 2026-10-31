@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraGrow 🌱</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- MAIN APP (No forced welcome screen!) -->
+<div id="mainApp">
+  <header>
+    <h1><i class="fas fa-seedling"></i> <span data-key="title">TerraGrow</span></h1>
+    <p data-key="subtitle">Smart Farming Assistant</p>
+  </header>
+
+  <div class="top-controls">
+    <select class="control-btn lang-select" id="langSelect" onchange="changeLanguage()">
+      <option value="en">English</option>
+      <option value="hi">हिंदी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+    </select>
+    <button class="control-btn voice-toggle" id="voiceToggle" onclick="toggleVoice()">
+      <i class="fas fa-volume-mute" id="voiceIcon"></i> <span id="voiceText">Voice: OFF</span>
+    </button>
+  </div>
+
+  <div class="nav-menu">
+    <button class="nav-btn active" onclick="showSection('home', this)"><i class="fas fa-home"></i> <span data-key="nav_home">Home</span></button>
+    <button class="nav-btn" onclick="showSection('crop', this)"><i class="fas fa-leaf"></i> <span data-key="nav_crop">Crop</span></button>
+    <button class="nav-btn" onclick="showSection('fert', this)"><i class="fas fa-flask"></i> <span data-key="nav_fert">Fertilizer</span></button>
+    <button class="nav-btn" onclick="showSection('compost', this)"><i class="fas fa-recycle"></i> <span data-key="nav_compost">Compost</span></button>
+    <button class="nav-btn" onclick="showSection('disease', this)"><i class="fas fa-microscope"></i> <span data-key="nav_disease">Disease</span></button>
+  </div>
+
+  <div class="container">
+    <!-- HOME SECTION (WITH OPTIONAL LOCATION & IMAGE) -->
+    <div class="glass-card active" id="section-home">
+      <h2 class="section-title"><i class="fas fa-cloud-sun"></i> <span data-key="nav_home">Today's Farm Report</span></h2>
+      
+      <!-- Optional Setup Buttons -->
+      <div class="optional-setup">
+        <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Optional: Personalize your report</p>
+        <div class="setup-buttons">
+          <button class="setup-btn" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> Use My Location</button>
+          <button class="setup-btn" onclick="document.getElementById('homeImg').click()"><i class="fas fa-camera"></i> Upload Crop Photo</button>
+          <input type="file" id="homeImg" accept="image/*" style="display:none" onchange="handleHomeImage(event)">
+        </div>
+        <p id="setupStatus" style="font-size: 0.85em; color: #2e7d32; margin-top: 10px; font-weight: 600; display: none;"></p>
+      </div>
+
+      <div class="weather-widget" style="margin-top: 20px;">
+        <div class="weather-icon"><i class="fas fa-sun"></i></div>
+        <div class="weather-info">
+          <h3 id="weatherTemp">32°C, Sunny</h3>
+          <p id="weatherDetails">Humidity: 65% | Rain: 10%</p>
+          <p id="dailyAdvice" style="color: #2e7d32; font-weight: bold; margin-top: 5px;">AI Daily Advice: Good day for watering. Keep an eye out for pests.</p>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 10px; border-left: 4px solid #ff9800;">
+        <p style="font-size: 0.9em; color: #555;"><i class="fas fa-info-circle" style="color: #ff9800;"></i> <strong>AI Disclaimer:</strong> TerraGrow uses AI to assist you. AI can make mistakes. Always consult a local Krishi Kendra for final decisions regarding your crops.</p>
+      </div>
+    </div>
+
+    <!-- CROP -->
+    <div class="glass-card" id="section-crop">
+      <h2 class="section-title"><i class="fas fa-leaf"></i> <span data-key="nav_crop">Crop Advisor</span></h2>
+      <div class="form-group">
+        <label data-key="lbl_location">Location</label>
+        <div class="input-wrapper"><i class="fas fa-map-marker-alt"></i><input type="text" id="location" data-key="ph_location" placeholder="e.g., Tamil Nadu"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-key="lbl_water">Water</label>
+          <div class="input-wrapper"><i class="fas fa-tint"></i>
+            <select id="water"><option value="high" data-key="opt_high">High</option><option value="medium" data-key="opt_medium">Medium</option><option value="low" data-key="opt_low">Low</option></select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-key="lbl_soil">Soil</label>
+          <div class="input-wrapper"><i class="fas fa-mountain"></i>
+            <select id="soil"><option value="clay" data-key="opt_clay">Clay</option><option value="sandy" data-key="opt_sandy">Sandy</option><option value="loamy" data-key="opt_loamy">Loamy</option><option value="black" data-key="opt_black">Black</option><option value="red" data-key="opt_red">Red</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-key="lbl_season">Season</label>
+        <div class="input-wrapper"><i class="fas fa-sun"></i>
+          <select id="season"><option value="kharif" data-key="opt_kharif">Kharif</option><option value="rabi" data-key="opt_rabi">Rabi</option><option value="zaid" data-key="opt_zaid">Zaid</option></select>
+        </div>
+      </div>
+      <button class="btn" onclick="recommendCrop()"><i class="fas fa-magic"></i> <span data-key="btn_recommend">Get Recommendation</span></button>
+      <div class="result" id="cropResult"></div>
+    </div>
+
+    <!-- FERTILIZER -->
+    <div class="glass-card" id="section-fert">
+      <h2 class="section-title"><i class="fas fa-flask"></i> <span data-key="nav_fert">Fertilizer</span></h2>
+      <div class="form-group">
+        <label data-key="lbl_crop_name">Crop Name</label>
+        <div class="input-wrapper"><i class="fas fa-wheat-awn"></i><input type="text" id="fertCrop" data-key="ph_crop" placeholder="e.g., Rice"></div>
+      </div>
+      <div class="form-group">
+        <label data-key="lbl_growth">Stage</label>
+        <div class="input-wrapper"><i class="fas fa-chart-line"></i>
+          <select id="growth">
+            <option value="seedling" data-key="opt_seedling">Seedling</option><option value="vegetative" data-key="opt_veg">Vegetative</option>
+            <option value="flowering" data-key="opt_flower">Flowering</option><option value="fruiting" data-key="opt_fruit">Fruiting</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="suggestFertilizer()"><i class="fas fa-flask"></i> <span data-key="btn_fert">Get Plan</span></button>
+      <div class="result" id="fertResult"></div>
+    </div>
+
+    <!-- COMPOST -->
+    <div class="glass-card" id="section-compost">
+      <h2 class="section-title"><i class="fas fa-recycle"></i> <span data-key="nav_compost">Organic Compost</span></h2>
+      <div class="form-group">
+        <label data-key="lbl_soil_type">Soil Type</label>
+        <div class="input-wrapper"><i class="fas fa-mountain"></i>
+          <select id="compostSoil">
+            <option value="sandy">Sandy Soil</option>
+            <option value="clay">Clay Soil</option>
+            <option value="black">Black Soil</option>
+            <option value="red">Red Soil</option>
+            <option value="loamy">Loamy Soil</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="showCompost()"><i class="fas fa-book-open"></i> <span data-key="btn_compost">Show Guide</span></button>
+      <div class="result" id="compostResult"></div>
+    </div>
+
+    <!-- DISEASE -->
+    <div class="glass-card" id="section-disease">
+      <h2 class="section-title"><i class="fas fa-microscope"></i> <span data-key="nav_disease">Disease Detection</span></h2>
+      <div class="form-group">
+        <label data-key="lbl_upload">Upload Leaf Photo</label>
+        <div class="upload-area" onclick="document.getElementById('imgInput').click()">
+          <i class="fas fa-camera"></i>
+          <p data-key="ph_upload">Click to upload a photo of the affected plant</p>
+          <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="detectDisease(event)">
+        </div>
+      </div>
+      <div class="result" id="diseaseResult"></div>
+    </div>
+  </div>
+
+  <!-- CHATBOT -->
+  <div class="chat-fab" onclick="toggleChat()">
+    <div class="farmer-face">
+      <div class="farmer-hat"></div>
+      <div class="farmer-eyes"></div>
+      <div class="farmer-smile"></div>
+    </div>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <span>🧑‍🌾 Kisan Mitra</span>
+      <i class="fas fa-times" onclick="toggleChat()"></i>
+    </div>
+    <div class="chat-box" id="chatBox">
+      <div class="msg bot">Namaste! I am your farming companion. Ask me anything about crops, pests, or soil.</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendMsg()">
+      <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<script src="part1.js"></script>
+<script src="part2.js"></script>
+</body>
+</html>
